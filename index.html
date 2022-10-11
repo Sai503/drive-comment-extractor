@@ -10,7 +10,8 @@
     <!--Add buttons to initiate auth sequence and sign out-->
     <button id="authorize_button" onclick="handleAuthClick()">Authorize</button>
     <button id="signout_button" onclick="handleSignoutClick()">Sign Out</button>
-    <button id="download" onclick="download()">Download</button>
+    <button id="download" onclick='listComments("")'>Download</button>
+    <input type="text" id="docId" />
 
     <pre id="content" style="white-space: pre-wrap;"></pre>
 
@@ -57,6 +58,11 @@ link.setAttribute("download", "codingData.csv");
 document.body.appendChild(link); // Required for FF
 
 link.click(); // This will download the data file named "my_data.csv".
+
+data = [
+        ["quote", "code"]
+      ]
+
       }
 
       /**
@@ -112,7 +118,7 @@ link.click(); // This will download the data file named "my_data.csv".
           document.getElementById('signout_button').style.visibility = 'visible';
           document.getElementById('authorize_button').innerText = 'Refresh';
           await listFiles();
-          await listComments("");
+          // await listComments("");
         };
 
         if (gapi.client.getToken() === null) {
@@ -168,7 +174,7 @@ link.click(); // This will download the data file named "my_data.csv".
       async function listComments(pageToken) {
   // Change docId into your document's ID
   // See below on how to
-  var docId = '18XjM-eSeYHV22El6JZF3MyP2ZEOz1B0hVNp-AopUNTs'; 
+  var docId = document.getElementById('docId').value;
   var comments = await gapi.client.drive.comments.list({
     'fileId': docId,
     'fields': "*",
@@ -185,7 +191,7 @@ link.click(); // This will download the data file named "my_data.csv".
     if (next) {
         await listComments(next);
     } else {
-      alert("Ready to download!");
+      download();
     }
 }
     </script>
