@@ -185,7 +185,7 @@ data = [
     console.log(comments.result);
     let next = comments.result.nextPageToken;
     comments.result.comments.forEach(element => {
-        data.push(['"' + element.quotedFileContent.value.replace('"', '\"') + '"', '"' + element.content.replace('"', '\"') + '"']);
+        data.push(['"\'' + element.quotedFileContent.value.replace('"', '\"') + '\'"', '"' + element.content.replace('"', '\"') + '"']);
     });
 
     if (next) {
