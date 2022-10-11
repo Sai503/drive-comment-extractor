@@ -168,7 +168,7 @@ link.click(); // This will download the data file named "my_data.csv".
       async function listComments(pageToken) {
   // Change docId into your document's ID
   // See below on how to
-  var docId = '1NHQZvH6Aioqrt3dNlZodPr0CrbgjrGlOdfzMK3H3zl8'; 
+  var docId = '18XjM-eSeYHV22El6JZF3MyP2ZEOz1B0hVNp-AopUNTs'; 
   var comments = await gapi.client.drive.comments.list({
     'fileId': docId,
     'fields': "*",
@@ -179,7 +179,7 @@ link.click(); // This will download the data file named "my_data.csv".
     console.log(comments.result);
     let next = comments.result.nextPageToken;
     comments.result.comments.forEach(element => {
-        data.push([element.quotedFileContent.value, element.content]);
+        data.push(['"' + element.quotedFileContent.value.replace('"', '\"') + '"', '"' + element.content.replace('"', '\"') + '"']);
     });
 
     if (next) {
