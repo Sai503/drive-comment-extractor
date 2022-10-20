@@ -11,9 +11,10 @@
     <button id="authorize_button" onclick="handleAuthClick()">Authorize</button>
     <button id="signout_button" onclick="handleSignoutClick()">Sign Out</button>
     <button id="download" onclick='listComments("")'>Download</button>
-    <input type="text" id="docId" />
+    <input type="text" id="docId" placeholder="docId" />
+    <input type="text" id="prefix" placeholder="prefix" />
 
-    <pre id="content" style="white-space: pre-wrap;"></pre>
+    <pre id="content" style="white-space: pre-wrap"></pre>
 
     <script type="text/javascript">
       /* exported gapiLoaded */
@@ -23,53 +24,51 @@
 
       // TODO(developer): Set to client ID and API key from the Developer Console
       //985179736372-asj68egr6b3oc8ctdfngfp9ot66uh5o0.apps.googleusercontent.com
-      const CLIENT_ID = '985179736372-asj68egr6b3oc8ctdfngfp9ot66uh5o0.apps.googleusercontent.com';
-      const API_KEY = 'AIzaSyApZK8yIxv2_vTAF9O0BoU3QnE3WAjcO_U';
+      const CLIENT_ID =
+        "985179736372-asj68egr6b3oc8ctdfngfp9ot66uh5o0.apps.googleusercontent.com";
+      const API_KEY = "AIzaSyApZK8yIxv2_vTAF9O0BoU3QnE3WAjcO_U";
 
       // Discovery doc URL for APIs used by the quickstart
-      const DISCOVERY_DOC = 'https://www.googleapis.com/discovery/v1/apis/drive/v3/rest';
+      const DISCOVERY_DOC =
+        "https://www.googleapis.com/discovery/v1/apis/drive/v3/rest";
 
       // Authorization scopes required by the API; multiple scopes can be
       // included, separated by spaces.
-      const SCOPES = 'https://www.googleapis.com/auth/drive.metadata.readonly https://www.googleapis.com/auth/drive.readonly';
+      const SCOPES =
+        "https://www.googleapis.com/auth/drive.metadata.readonly https://www.googleapis.com/auth/drive.readonly";
 
       let tokenClient;
       let gapiInited = false;
       let gisInited = false;
-      let data = [
-        ["quote", "code"]
-      ]
+      let data = [["quote", "code"]];
 
-      document.getElementById('authorize_button').style.visibility = 'hidden';
-      document.getElementById('signout_button').style.visibility = 'hidden';
+      //document.getElementById("authorize_button").style.visibility = "hidden";
+      document.getElementById("signout_button").style.visibility = "hidden";
 
-      function download(){
+      function download() {
         let csvContent = "data:text/csv;charset=utf-8,";
 
-data.forEach(function(rowArray) {
-    let row = rowArray.join(",");
-    csvContent += row + "\r\n";
-});
+        data.forEach(function (rowArray) {
+          let row = rowArray.join(",");
+          csvContent += row + "\r\n";
+        });
 
-var encodedUri = encodeURI(csvContent);
-var link = document.createElement("a");
-link.setAttribute("href", encodedUri);
-link.setAttribute("download", "codingData.csv");
-document.body.appendChild(link); // Required for FF
+        var encodedUri = encodeURI(csvContent);
+        var link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "codingData.csv");
+        document.body.appendChild(link); // Required for FF
 
-link.click(); // This will download the data file named "my_data.csv".
+        link.click(); // This will download the data file named "my_data.csv".
 
-data = [
-        ["quote", "code"]
-      ]
-
+        data = [["quote", "code"]];
       }
 
       /**
        * Callback after api.js is loaded.
        */
       function gapiLoaded() {
-        gapi.load('client', initializeGapiClient);
+        gapi.load("client", initializeGapiClient);
       }
 
       /**
@@ -92,7 +91,7 @@ data = [
         tokenClient = google.accounts.oauth2.initTokenClient({
           client_id: CLIENT_ID,
           scope: SCOPES,
-          callback: '', // defined later
+          callback: "", // defined later
         });
         gisInited = true;
         maybeEnableButtons();
@@ -103,7 +102,8 @@ data = [
        */
       function maybeEnableButtons() {
         if (gapiInited && gisInited) {
-          document.getElementById('authorize_button').style.visibility = 'visible';
+          document.getElementById("authorize_button").style.visibility =
+            "visible";
         }
       }
 
@@ -113,10 +113,11 @@ data = [
       function handleAuthClick() {
         tokenClient.callback = async (resp) => {
           if (resp.error !== undefined) {
-            throw (resp);
+            throw resp;
           }
-          document.getElementById('signout_button').style.visibility = 'visible';
-          document.getElementById('authorize_button').innerText = 'Refresh';
+          document.getElementById("signout_button").style.visibility =
+            "visible";
+          document.getElementById("authorize_button").innerText = "Refresh";
           await listFiles();
           // await listComments("");
         };
@@ -124,10 +125,10 @@ data = [
         if (gapi.client.getToken() === null) {
           // Prompt the user to select a Google Account and ask for consent to share their data
           // when establishing a new session.
-          tokenClient.requestAccessToken({prompt: 'consent'});
+          tokenClient.requestAccessToken({ prompt: "consent" });
         } else {
           // Skip display of account chooser and consent dialog for an existing session.
-          tokenClient.requestAccessToken({prompt: ''});
+          tokenClient.requestAccessToken({ prompt: "" });
         }
       }
 
@@ -138,10 +139,10 @@ data = [
         const token = gapi.client.getToken();
         if (token !== null) {
           google.accounts.oauth2.revoke(token.access_token);
-          gapi.client.setToken('');
-          document.getElementById('content').innerText = '';
-          document.getElementById('authorize_button').innerText = 'Authorize';
-          document.getElementById('signout_button').style.visibility = 'hidden';
+          gapi.client.setToken("");
+          document.getElementById("content").innerText = "";
+          document.getElementById("authorize_button").innerText = "Authorize";
+          document.getElementById("signout_button").style.visibility = "hidden";
         }
       }
 
@@ -152,50 +153,69 @@ data = [
         let response;
         try {
           response = await gapi.client.drive.files.list({
-            'pageSize': 10,
-            'fields': 'files(id, name)',
+            pageSize: 10,
+            fields: "files(id, name)",
           });
         } catch (err) {
-          document.getElementById('content').innerText = err.message;
+          document.getElementById("content").innerText = err.message;
           return;
         }
         const files = response.result.files;
         if (!files || files.length == 0) {
-          document.getElementById('content').innerText = 'No files found.';
+          document.getElementById("content").innerText = "No files found.";
           return;
         }
         // Flatten to string to display
         const output = files.reduce(
-            (str, file) => `${str}${file.name} (${file.id}\n`,
-            'Files:\n');
-        document.getElementById('content').innerText = output;
+          (str, file) => `${str}${file.name} (${file.id}\n`,
+          "Files:\n"
+        );
+        document.getElementById("content").innerText = output;
       }
 
       async function listComments(pageToken) {
-  // Change docId into your document's ID
-  // See below on how to
-  var docId = document.getElementById('docId').value;
-  var comments = await gapi.client.drive.comments.list({
-    'fileId': docId,
-    'fields': "*",
-    'maxResults': 100,
-    'pageToken': pageToken,
-  });
+        var prefix = document.getElementById("prefix").value;
+        // Change docId into your document's ID
+        // See below on how to
+        var docId = document.getElementById("docId").value;
+        var comments = await gapi.client.drive.comments.list({
+          fileId: docId,
+          fields: "*",
+          maxResults: 100,
+          pageToken: pageToken,
+        });
 
-    console.log(comments.result);
-    let next = comments.result.nextPageToken;
-    comments.result.comments.forEach(element => {
-        data.push(['"\'' + element.quotedFileContent.value.replace('"', '\"') + '\'"', '"' + element.content.replace('"', '\"') + '"']);
-    });
+        console.log(comments.result);
+        let next = comments.result.nextPageToken;
+        comments.result.comments.forEach((element) => {
+          data.push([
+            '"' +
+              prefix +
+              "'" +
+              element.quotedFileContent.value.replace('"', '"') +
+              "'\"",
+            '"' + element.content.replace('"', '"') + '"',
+          ]);
+        });
 
-    if (next) {
-        await listComments(next);
-    } else {
-      download();
-    }
-}
+        if (next) {
+          await listComments(next);
+        } else {
+          download();
+        }
+      }
     </script>
-    <script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
-    <script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
+    <script
+      async
+      defer
+      src="https://apis.google.com/js/api.js"
+      onload="gapiLoaded()"
+    ></script>
+    <script
+      async
+      defer
+      src="https://accounts.google.com/gsi/client"
+      onload="gisLoaded()"
+    ></script>
   </body>
 </html>
